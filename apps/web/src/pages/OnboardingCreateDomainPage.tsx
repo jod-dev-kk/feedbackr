@@ -1,6 +1,18 @@
+import PageLoader from "@/components/Loaders/PageLoader.tsx";
 import { CreateDomainForm } from "@/features/onboarding/components/CreateDomainForm.tsx";
+import { useDomainRedirect } from "@/hooks/useDomainRedirect.ts";
 import { FeedbackrLogo } from "@repo/ui/icons";
+import { useNavigate } from "react-router";
 export const OnboardingCreateDomainPage = () => {
+  const { isRedirecting } = useDomainRedirect({
+    onNoDomains: () => {},
+  });
+  const navigate = useNavigate();
+  if (isRedirecting) {
+    return (
+      <PageLoader title="Unauthorized. Redirecting to login..." size="sm" />
+    );
+  }
   return (
     <>
       <div className="w-full h-full">

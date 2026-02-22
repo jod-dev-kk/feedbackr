@@ -69,5 +69,8 @@ export const useDomain = () => {
     data: {
       domains,
     },
+    services: {
+      getDomainService,
+    },
   };
 };

@@ -1,10 +1,32 @@
 import DashboardLayout from "@/components/Layouts/DashboardLayout.tsx";
 import { useAuth } from "@/features/auth/hooks.ts";
+import { useDomain } from "@/hooks/useDomain.ts";
 import { Spinner } from "@repo/ui";
-import { Navigate } from "react-router";
+import { useCallback, useEffect } from "react";
+import { Navigate, useNavigate, useParams } from "react-router";
 export const ProtectedRoute = () => {
   const { userSession } = useAuth();
 
+  const navigate = useNavigate();
+  const {
+    data: { domains },
+    services: { getDomainService },
+  } = useDomain();
+  const { domainId } = useParams();
+  const handleDomainRedirect = useCallback(() => {
+    if (
+      !domainId &&
+      domains &&
+      domains?.length > 0 &&
+      !getDomainService.isPending
+    ) {
+      navigate(`/dashboard/${domains[0]?.id}`, { replace: true });
+    }
+  }, [domains, navigate]);
+
+  useEffect(() => {
+    handleDomainRedirect();
+  }, [handleDomainRedirect]);
   if (userSession.isPending) {
     return (
       <div className="flex items-center justify-center h-screen ">
@@ -15,5 +37,6 @@ export const ProtectedRoute = () => {
   if (!userSession.data?.session) {
     return <Navigate to={"/login"} />;
   }
+
   return <DashboardLayout />;
 };
