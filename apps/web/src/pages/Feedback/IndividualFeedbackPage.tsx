@@ -34,7 +34,6 @@ export const IndividualFeedbackPage = () => {
           <TopbarGroup>
             <StatusFilter />
             <PriorityFilter />
-
             <FeedbackDeleteSection />
           </TopbarGroup>
         </TopbarContainer>

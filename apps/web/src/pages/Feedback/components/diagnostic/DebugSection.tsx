@@ -108,8 +108,8 @@ export const DebugSection = ({
             </TabsList>
             <div className="border border-border rounded-lg mt-2 mb-6">
               <TabsContent value="console">
-                {debugContext && debugContext?.errors.length > 0 ? (
-                  debugContext.errors.map((error, idx) => {
+                {debugContext && debugContext?.errors?.length > 0 ? (
+                  debugContext?.errors?.map((error, idx) => {
                     return (
                       <DebugContent key={idx} className="">
                         <DebugLeftSide>
@@ -146,8 +146,8 @@ export const DebugSection = ({
                 )}
               </TabsContent>
               <TabsContent value="network">
-                {debugContext && debugContext.network.length > 0 ? (
-                  debugContext.network.map((networkUnit, idx) =>
+                {debugContext && debugContext?.network?.length > 0 ? (
+                  debugContext?.network?.map((networkUnit, idx) =>
                     Object.entries(networkUnit).map(([key, value]) => (
                       <DebugContent key={idx}>
                         <DebugLeftSide>
