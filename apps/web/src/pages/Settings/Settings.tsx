@@ -15,7 +15,7 @@ import { DeleteAccountSection } from "./components/DeleteAccountSection.tsx";
 const Settings = () => {
   const {
     data: { domains, selectedDomain, user },
-    functions: { handleDomainStatusChange, setSelectedDomainId },
+    functions: { handleDomainStatusChange },
   } = useSettings();
 
   const copyToClipboard = (text: string, label: string) => {
@@ -26,10 +26,6 @@ const Settings = () => {
     } catch (error) {
       toast.error("Clipboard access denied");
     }
-  };
-
-  const handleSaveChanges = () => {
-    toast.success("Preferences saved");
   };
 
   const handleDeleteAccount = () => {
@@ -53,7 +49,6 @@ const Settings = () => {
           <DomainsSection
             domains={domains}
             selectedDomain={selectedDomain}
-            setSelectedDomainId={setSelectedDomainId}
             onStatusChange={handleDomainStatusChange}
             copyToClipboard={copyToClipboard}
           />
