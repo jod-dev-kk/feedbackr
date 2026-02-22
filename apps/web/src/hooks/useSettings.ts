@@ -1,5 +1,8 @@
 import { useAuth } from "@/features/auth/hooks.ts";
 import { useDomain } from "@/hooks/useDomain.ts";
+import { queryClientGlobal } from "@/lib/tanstack-query/client.ts";
+import { ApiDomainStatus } from "@/services/getDomainService/useGetDomainService.types.ts";
+import { CACHE_KEYS } from "@repo/common/queryCacheKeys";
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router";
 import { toast } from "sonner";
@@ -9,6 +12,7 @@ export const useSettings = () => {
   const { domainId } = useParams<{ domainId: string }>();
   const {
     data: { domains },
+    handler: { updateDomainStatusHandler },
   } = useDomain();
 
   const user = userSession.data?.user;
@@ -29,9 +33,17 @@ export const useSettings = () => {
   );
 
   const handleDomainStatusChange = (id: string, checked: boolean) => {
-    toast.info(
-      `Feature coming soon: Changing status to ${checked ? "Active" : "Inactive"}`,
-    );
+    console.log(id, checked);
+    const updatedStatus: ApiDomainStatus = checked ? "ACTIVE" : "INACTIVE";
+    updateDomainStatusHandler({
+      data: { status: updatedStatus, domainId: id },
+      callback: (data) => {
+        queryClientGlobal.invalidateQueries({
+          queryKey: [CACHE_KEYS?.GET_DOMAINS],
+        });
+        toast.success(data?.message);
+      },
+    });
   };
 
   return {

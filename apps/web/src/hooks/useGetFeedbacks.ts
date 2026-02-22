@@ -16,6 +16,7 @@ const useGetFeedbacks = () => {
     REJECTED: 0,
     INVALID: 0,
     TOTAL: 0,
+    NIL: 0,
   };
 
   const feedbackMetricData = feedbackDataArray?.reduce((acc, curr) => {
