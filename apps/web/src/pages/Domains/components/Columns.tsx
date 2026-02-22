@@ -11,9 +11,11 @@ import {
   Clock,
   Ellipsis,
   ExternalLink,
+  Eye,
   XCircle,
 } from "lucide-react";
 import moment from "moment";
+import { useNavigate } from "react-router";
 
 export const columns: ColumnDef<IDomainType>[] = [
   {
@@ -63,17 +65,20 @@ export const columns: ColumnDef<IDomainType>[] = [
     accessorKey: "clientId",
     header: "Client ID",
     cell: ({ row }) => {
-      const clientId: string = row?.getValue("clientId");
-      const toShow =
-        clientId?.substring(0, 10) +
-        "..." +
-        clientId?.substring(clientId?.length - 10, clientId?.length - 1);
+      const toShow = "****************";
       return (
         <div className="flex items-center gap-2 w-32">
           <div className="flex text-xs font-mono text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded border border-transparent">
-            <span>client_{toShow}</span>
+            <span>pk_{toShow}</span>
           </div>
-          <CopyButton value={clientId} />
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="h-6 w-6 ml-1 text-muted-foreground hover:text-foreground cursor-pointer opacity-0 group-hover:opacity-100"
+            onClick={() => {}}
+          >
+            <Eye className="h-3 w-3" />
+          </Button>
         </div>
       );
     },
@@ -152,11 +157,14 @@ export const columns: ColumnDef<IDomainType>[] = [
   {
     id: "actions",
     header: "",
-    cell: () => {
+    cell: ({ row }) => {
+      const navigate = useNavigate();
+      const domainId = row?.original?.id;
       return (
         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button
             variant="outline"
+            onClick={() => navigate(`/dashboard/${domainId}/feedbacks`)}
             className="h-7 px-2 cursor-pointer  text-[11px] text-muted-foreground hover:text-foreground"
           >
             View
@@ -165,6 +173,7 @@ export const columns: ColumnDef<IDomainType>[] = [
           <Button
             variant="outline"
             size="icon"
+            disabled
             className="h-7 w-7 cursor-pointer text-muted-foreground hover:text-foreground"
           >
             <Ellipsis className="size-3.5" />
