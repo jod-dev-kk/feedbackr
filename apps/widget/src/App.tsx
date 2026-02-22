@@ -1,9 +1,7 @@
-import React from 'react'
+import { ImageAnnotator } from "./components/ImageAnnotator.tsx";
 
 const App = () => {
-  return (
-    <div>App</div>
-  )
-}
+  return <ImageAnnotator />;
+};
 
-export default App
+export default App;
