@@ -11,3 +11,4 @@ UserDomainRouter.post(
   "/:domainId/regenerateKey",
   UserDomainController.regenerateClientId,
 );
+UserDomainRouter.post("/validateClientId", UserDomainController.verifyClientId);

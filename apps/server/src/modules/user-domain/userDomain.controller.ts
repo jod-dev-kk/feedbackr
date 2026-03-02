@@ -1,3 +1,4 @@
+import { AppError } from "@/middlewares/error.middleware.js";
 import { DomainSchema } from "@repo/common/schemas";
 import { Request, Response } from "express";
 import { UserDomainService } from "./userDomain.service.js";
@@ -92,5 +93,33 @@ export const UserDomainController = {
       message: data.message,
       status: data.status,
     });
+  },
+  verifyClientId: async (req: Request, res: Response) => {
+    const { clientId } = req.query as { clientId: string };
+
+    if (!clientId) {
+      throw new AppError("ClientID not found", 404);
+    }
+    const origin = req.headers.origin || req.headers.referer;
+    if (!origin) {
+      throw new AppError("Origin not found", 404);
+    }
+
+    const hostname = new URL(origin).hostname;
+
+    const { data } = await UserDomainService.validateClientId({
+      clientId: clientId || "",
+      hostname,
+    });
+
+    if (data.domain) {
+      return res.jsonSuccess({
+        data: {
+          domain: data.domain,
+        },
+        message: "validated",
+        status: 200,
+      });
+    }
   },
 };
