@@ -125,7 +125,9 @@ export const UserDomainController = {
 
     if (data.domain) {
       return res.jsonSuccess({
-        data: null,
+        data: {
+          valid: true,
+        },
         message: "validated",
         status: 200,
       });
