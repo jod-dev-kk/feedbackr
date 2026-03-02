@@ -3,90 +3,117 @@ import {
   type ReactSketchCanvasRef,
 } from "react-sketch-canvas";
 import { useRef, useState } from "react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { Button } from "@repo/ui";
-export const ImageAnnotator = () => {
+
+interface ImageAnnotatorProps {
+  imageUrl: string;
+  onSave: (file: File) => void;
+  onCancel: () => void;
+}
+
+export const ImageAnnotator = ({
+  imageUrl,
+  onSave,
+  onCancel,
+}: ImageAnnotatorProps) => {
   const canvasRef = useRef<ReactSketchCanvasRef>(null);
   const [eraseMode, setEraseMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleEraserClick = () => {
-    setEraseMode(true);
-    canvasRef.current?.eraseMode(true);
+  const handleToggleEraser = () => {
+    setEraseMode(!eraseMode);
+    canvasRef.current?.eraseMode(!eraseMode);
   };
 
-  const handlePenClick = () => {
-    setEraseMode(false);
-    canvasRef.current?.eraseMode(false);
-  };
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const dataUrl = await canvasRef.current?.exportImage("png");
+      if (!dataUrl) return;
 
-  const handleUndoClick = () => {
-    canvasRef.current?.undo();
-  };
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "annotated-screenshot.png", {
+        type: "image/png",
+      });
 
-  const handleRedoClick = () => {
-    canvasRef.current?.redo();
-  };
-
-  const handleClearClick = () => {
-    canvasRef.current?.clearCanvas();
-  };
-
-  const handleResetClick = () => {
-    canvasRef.current?.resetCanvas();
+      onSave(file);
+    } catch (err) {
+      console.error("Failed to save annotation", err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="absolute right-full h-full bottom-[190px] mr-3 border border-border rounded-lg z-50"
+      className="absolute right-[calc(100%+1rem)] bottom-0 flex flex-col rounded-xl border border-border bg-card shadow-2xl z-50 overflow-hidden"
     >
-      <section className="border-b border-border p-3 bg-neutral-100 rounded-b-md">
-        Add Annotation
-      </section>
-      <div className="w-[840px] h-[600px] flex items-center justify-center rounded-lg p-2">
-        <ReactSketchCanvas
-          className="w-[840px] h-[600px] rounded-xl"
-          ref={canvasRef}
-          backgroundImage="https://images.unsplash.com/photo-1761839256547-0a1cd11b6dfb?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          exportWithBackgroundImage
-          strokeColor="#ffeeed"
-        />
-      </div>
-      <section className="border border-border p-3 bg-neutral-100 rounded-b-md">
-        <div className="flex items-center gap-3">
-          <Button
-            type="button"
-            variant={"outline"}
-            disabled={!eraseMode}
-            onClick={handlePenClick}
-          >
-            Pen
+      <div className="flex items-center justify-between border-b border-border p-3 bg-muted/30">
+        <span className="font-medium text-sm">Annotate Screenshot</span>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={onCancel}>
+            Cancel
           </Button>
-          <Button
-            type="button"
-            variant={"outline"}
-            disabled={eraseMode}
-            onClick={handleEraserClick}
-          >
-            Eraser
-          </Button>
-          <Button type="button" variant={"outline"} onClick={handleUndoClick}>
-            Undo
-          </Button>
-          <Button type="button" variant={"outline"} onClick={handleRedoClick}>
-            Redo
-          </Button>
-          <Button type="button" variant={"outline"} onClick={handleClearClick}>
-            Clear
-          </Button>
-          <Button type="button" variant={"outline"} onClick={handleResetClick}>
-            Reset
+          <Button size="sm" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save"}
           </Button>
         </div>
-      </section>
+      </div>
+
+      <div className="w-[800px] h-[500px] bg-secondary flex items-center justify-center p-4">
+        <ReactSketchCanvas
+          ref={canvasRef}
+          preserveBackgroundImageAspectRatio=""
+          className="w-full h-full rounded-lg overflow-hidden object-contain"
+          backgroundImage={imageUrl}
+          exportWithBackgroundImage
+          strokeColor="#ef4444"
+          strokeWidth={4}
+        />
+      </div>
+
+      <div className="border-t border-border p-3 bg-muted/30 flex justify-center gap-3">
+        <Button
+          variant={!eraseMode ? "default" : "outline"}
+          size="sm"
+          onClick={handleToggleEraser}
+        >
+          Pen
+        </Button>
+        <Button
+          variant={eraseMode ? "default" : "outline"}
+          size="sm"
+          onClick={handleToggleEraser}
+        >
+          Eraser
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => canvasRef.current?.undo()}
+        >
+          Undo
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => canvasRef.current?.redo()}
+        >
+          Redo
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => canvasRef.current?.clearCanvas()}
+        >
+          Clear
+        </Button>
+      </div>
     </motion.div>
   );
 };

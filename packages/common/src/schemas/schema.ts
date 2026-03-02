@@ -1,6 +1,26 @@
 // Zod schemas.
 
-import z from "zod";
+import z, { string } from "zod";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
+
+export const widgetFormSchema = z.object({
+  message: z.string().min(1, "Message required"),
+  email: z.email("Invalid email"),
+  image: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_FILE_SIZE, "Max 5MB")
+    .refine(
+      (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Only JPEG, PNG, WebP allowed",
+    ),
+});
 
 export const createFeedbackSchema = z.object({
   url: z.string().nonempty(),
@@ -40,5 +60,6 @@ export const DomainSchema = z.object({
   // }),
 });
 
+export type TWidgetFormPayload = z.infer<typeof widgetFormSchema>;
 export type TcreateFeedbackPayload = z.infer<typeof createFeedbackSchema>;
 export type TDomainPayload = z.infer<typeof DomainSchema>;
