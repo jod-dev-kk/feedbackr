@@ -182,15 +182,14 @@ export const UserDomainService = {
     const isLocalhost = hostname.includes("localhost");
 
     const hashedclientId = hashFunction(clientId);
+
     const domain = await prisma.domain.findFirst({
       where: { clientId: hashedclientId, url: hostname },
     });
 
     if (!domain) {
-      throw new AppError("Invalid Client ID", 400);
+      throw new AppError("Invalid Client ID in service", 400);
     }
-
-    console.log("SERVICE DOMAIN", domain);
 
     return {
       data: { domain },

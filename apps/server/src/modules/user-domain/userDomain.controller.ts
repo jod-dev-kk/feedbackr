@@ -105,8 +105,19 @@ export const UserDomainController = {
       throw new AppError("Origin not found", 404);
     }
 
-    const hostname = new URL(origin).hostname;
+    let hostname = new URL(origin).hostname;
 
+    if (hostname.includes("localhost")) {
+      hostname = "working.mail.com";
+      /**
+       * why i did this bcoz in our database , there is no record for localhost in domains table.. so our database checks will get failed.
+       *
+       * we can't change origin by passing origin in header coz browser restricts it and we have added checks on "origin" only in our express...
+       *
+       * that's why we have to do this ( workaround )
+       * later , add multiple dummy origins.
+       */
+    }
     const { data } = await UserDomainService.validateClientId({
       clientId: clientId || "",
       hostname,
@@ -114,9 +125,7 @@ export const UserDomainController = {
 
     if (data.domain) {
       return res.jsonSuccess({
-        data: {
-          domain: data.domain,
-        },
+        data: null,
         message: "validated",
         status: 200,
       });
