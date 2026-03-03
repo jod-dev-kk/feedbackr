@@ -1,6 +1,16 @@
+import { useGetSubmitDetails } from "@/hooks/useGetSubmitDetails.ts";
 import { TWidgetFormPayload } from "@repo/common/schemas";
 
-export async function submitFeedback(data: TWidgetFormPayload) {
+export async function submitFeedback(
+  data: TWidgetFormPayload & {
+    errors: {
+      debugContext: Record<string, any>;
+      clientContext: Record<string, any>;
+    };
+    url: string;
+  },
+) {
+  console.log(data?.errors, data?.url);
   const searchParams = new URLSearchParams(window.location.search);
   const clientId = searchParams.get("clientId");
 
@@ -14,10 +24,9 @@ export async function submitFeedback(data: TWidgetFormPayload) {
   formData.append("message", data.message || "");
 
   //change with pareant url, its of iframe currently
-  formData.append("url", window.location.href);
-  formData.append("clientContext", JSON.stringify({}));
-  formData.append("debugContext", JSON.stringify({}));
-  
+  formData.append("url", data?.url);
+  formData.append("clientContext", JSON.stringify(data?.errors?.clientContext));
+  formData.append("debugContext", JSON.stringify(data?.errors?.debugContext));
 
   const response = await fetch("http://localhost:8001/api/feedback", {
     method: "POST",
