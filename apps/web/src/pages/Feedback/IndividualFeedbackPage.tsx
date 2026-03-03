@@ -152,12 +152,13 @@ export const IndividualFeedbackPage = () => {
                 className=""
                 variant="alert"
               />
-              {getIndividualFeedbackService.data &&
-              Object.keys(getIndividualFeedbackService.data?.data?.debugContext)
-                .length > 0 ? (
-                <DebugSection data={getIndividualFeedbackService.data} />
-              ) : (
+              {getIndividualFeedbackService?.isLoading ? (
                 <Skeleton className="bg-muted h-[50px] w-full rounded-lg" />
+              ) : (
+                getIndividualFeedbackService.data &&
+                Object.keys(
+                  getIndividualFeedbackService.data?.data?.debugContext,
+                ) && <DebugSection data={getIndividualFeedbackService.data} />
               )}
             </div>
           </div>
