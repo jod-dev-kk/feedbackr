@@ -16,8 +16,8 @@ import {
 import { Button, Textarea, Input } from "@repo/ui";
 import { type TWidgetFormPayload } from "@repo/common/schemas";
 import { cn } from "@repo/utils/client";
-import { useScreenshot } from "@/hooks/useScreenShot.ts";
 import { ImageAnnotator } from "@/components/ImageAnnotator.tsx";
+import { useScreenshot } from "@/hooks/useScreenShot.ts";
 
 interface WidgetFormProps {
   isAnnotating: boolean;
@@ -49,11 +49,25 @@ export function WidgetForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const [rawImage, setRawImage] = useState<File | null>(null);
+  const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
+
   const imageFile = watch("image");
+
+  useEffect(() => {
+    if (!rawImage) {
+      setRawImageUrl(null);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => setRawImageUrl(reader.result as string);
+    reader.readAsDataURL(rawImage);
+  }, [rawImage]);
 
   const handleTakeScreenshot = async () => {
     const file = await captureScreen();
     if (file) {
+      setRawImage(file);
       setValue("image", file, { shouldValidate: true });
       onOpenAnnotator();
     }
@@ -68,7 +82,6 @@ export function WidgetForm({
     setIsSuccess(true);
 
     setTimeout(() => {
-      setIsSuccess(false);
       reset();
       onClose();
     }, 2500);
@@ -94,32 +107,119 @@ export function WidgetForm({
   if (isSuccess) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 12 }}
-        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0, y: 16, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -16, scale: 0.95 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className={cardClass}
       >
-        <div className="flex flex-1 flex-col items-center justify-center gap-4">
-          <motion.div
-            initial={{ scale: 0, rotate: -15 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 18,
-              delay: 0.1,
-            }}
-            className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50"
-          >
-            <CheckCircle2 className="h-9 w-9 text-green-500" />
-          </motion.div>
-          <div className="text-center">
-            <h3 className="text-base font-semibold">Feedback received!</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Thanks for helping us improve.
-            </p>
+        <div
+          className="relative shrink-0 overflow-hidden px-4 py-4 md:rounded-t-2xl"
+          style={{
+            background: "linear-gradient(135deg, #443aff 0%, #6c63ff 100%)",
+          }}
+        >
+          <div className="pointer-events-none absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/5" />
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
+                <CheckCircle2 className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">Success</p>
+                <p className="text-xs text-white/70">
+                  Message sent successfully
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+            >
+              <ChevronDown className="h-5 w-5 md:hidden" />
+              <X className="hidden h-4 w-4 md:block" />
+            </button>
           </div>
+        </div>
+
+        <div className="flex flex-1 flex-col items-center justify-center gap-5 p-8">
+          <motion.svg
+            viewBox="0 0 100 100"
+            className="h-24 w-24 overflow-visible"
+          >
+            {[...Array(8)].map((_, i) => {
+              const angle = (i * 360) / 8;
+              const radius = 38;
+
+              return (
+                <motion.circle
+                  key={i}
+                  cx="50"
+                  cy="50"
+                  r="2.5"
+                  fill="#22c55e"
+                  initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
+                  animate={{
+                    scale: [0, 1.5, 0],
+                    x: Math.cos((angle * Math.PI) / 180) * radius,
+                    y: Math.sin((angle * Math.PI) / 180) * radius,
+                    opacity: [1, 1, 0],
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    delay: 0.15,
+                    ease: "easeOut",
+                  }}
+                />
+              );
+            })}
+
+            <motion.circle
+              cx="50"
+              cy="50"
+              r="40"
+              fill="#f0fdf4"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 250,
+                damping: 20,
+                delay: 0.1,
+              }}
+            />
+
+            <motion.path
+              d="M 32 52 L 45 65 L 70 35"
+              fill="transparent"
+              stroke="#22c55e"
+              strokeWidth="6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{
+                duration: 0.4,
+                delay: 0.35,
+                ease: "easeOut",
+              }}
+            />
+          </motion.svg>
+
+          <motion.div
+            className="text-center"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+          >
+            <h3 className="text-lg font-semibold text-foreground">
+              Feedback received!
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Thanks for helping us improve. We read every message.
+            </p>
+          </motion.div>
         </div>
       </motion.div>
     );
@@ -135,7 +235,7 @@ export function WidgetForm({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-9997 hidden bg-black/50 md:block"
+            className="fixed inset-0 z-9997 hidden md:block"
             onClick={onCloseAnnotator}
           />
         )}
@@ -201,9 +301,9 @@ export function WidgetForm({
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               className="flex min-h-0 flex-1 flex-col"
             >
-              {previewUrl && (
+              {rawImageUrl && (
                 <ImageAnnotator
-                  imageUrl={previewUrl}
+                  imageUrl={rawImageUrl}
                   onSave={onAnnotationSave}
                   onCancel={onCloseAnnotator}
                 />
@@ -342,15 +442,14 @@ export function WidgetForm({
                               type="button"
                               variant="ghost"
                               size="icon"
-                              onClick={() =>
+                              onClick={() => {
+                                setRawImage(null);
                                 setValue(
                                   "image",
                                   undefined as unknown as File,
-                                  {
-                                    shouldValidate: true,
-                                  },
-                                )
-                              }
+                                  { shouldValidate: true },
+                                );
+                              }}
                               aria-label="Remove"
                               className="h-7 w-7 text-muted-foreground/60 hover:bg-destructive/10 hover:text-destructive"
                             >

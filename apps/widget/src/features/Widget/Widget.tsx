@@ -9,6 +9,8 @@ import {
 } from "@repo/common/schemas";
 import { WidgetForm } from "./components/WidgetForm.tsx";
 import { WidgetTrigger } from "./components/WidgetTrigger.tsx";
+import { cn } from "@repo/utils/client";
+import { handlePostMessage } from "@/utils/postMessage.utils.ts";
 
 export function Widget() {
   const [mounted, setMounted] = useState(false);
@@ -43,14 +45,20 @@ export function Widget() {
   const handleClose = () => {
     setIsOpen(false);
     setIsAnnotating(false);
+    setTimeout(() => {
+      handlePostMessage("FEEDBACK_WIDGET_CLOSE");
+    }, 300);
   };
 
   if (!mounted) return null;
 
-  return createPortal(
+  return (
     <div
       id="widget-root"
-      className="fixed bottom-4 right-4 z-9999 font-inter md:bottom-6 md:right-6"
+      className={cn(
+        "fixed bottom-0 right-0 z-9999 font-inter flex items-center justify-center p-1",
+        // !isOpen && "size-full",
+      )}
     >
       <FormProvider {...methods}>
         <AnimatePresence>
@@ -75,11 +83,21 @@ export function Widget() {
         >
           <WidgetTrigger
             isOpen={isOpen}
-            onClick={() => setIsOpen((prev) => !prev)}
+            onClick={() => {
+              if (isOpen) {
+                setIsOpen(false);
+                setTimeout(
+                  () => handlePostMessage("FEEDBACK_WIDGET_CLOSE"),
+                  300,
+                );
+              } else {
+                handlePostMessage("FEEDBACK_WIDGET_OPEN");
+                setTimeout(() => setIsOpen(true), 300);
+              }
+            }}
           />
         </div>
       </FormProvider>
-    </div>,
-    document.body,
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   ReactSketchCanvas,
   type ReactSketchCanvasRef,
@@ -31,6 +31,16 @@ export const ImageAnnotator = ({
   const [eraseMode, setEraseMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      setAspectRatio(img.width / img.height);
+    };
+    img.src = imageUrl;
+  }, [imageUrl]);
+
   const setErase = (val: boolean) => {
     setEraseMode(val);
     canvasRef.current?.eraseMode(val);
@@ -54,16 +64,21 @@ export const ImageAnnotator = ({
     }
   };
 
+  if (!aspectRatio) {
+    return (
+      <div className="flex min-h-0 flex-1 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto bg-muted/20 p-4">
-        <div className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm">
-          <img
-            src={imageUrl}
-            alt="spacer"
-            className="pointer-events-none w-full opacity-0"
-          />
-
+        <div
+          className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm"
+          style={{ aspectRatio: String(aspectRatio) }}
+        >
           <div className="absolute inset-0">
             <ReactSketchCanvas
               ref={canvasRef}
