@@ -1,6 +1,7 @@
 import { domToBlob } from "modern-screenshot";
 import { TSdkEvent } from "./events";
 import { iframeId } from "./iframe";
+import { errorsBuffer } from "../tracking/errors";
 
 export const sendToWidget = (type: TSdkEvent, data?: any) => {
   const iframe = document.getElementById(iframeId) as HTMLIFrameElement;
@@ -30,4 +31,9 @@ export const handleTakeScreenshot = async () => {
     console.error("SDK Screenshot Error:", error);
     sendToWidget("SCREENSHOT_ERROR");
   }
+};
+
+export const handleSubmitDetails = () => {
+  const data = { errors: errorsBuffer, url: window.location.href };
+  sendToWidget("FEEDBACK_SUBMIT_RESPONSE", data);
 };

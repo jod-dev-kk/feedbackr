@@ -2,9 +2,14 @@ export const FEEDBACK_EVENT = [
   "FEEDBACK_WIDGET_OPEN",
   "FEEDBACK_WIDGET_CLOSE",
   "TAKE_SCREENSHOT",
+  "FEEDBACK_SUBMIT_DETAILS",
 ] as const;
 
-export const SDK_EVENTS = ["SCREENSHOT_SUCCESS", "SCREENSHOT_ERROR"] as const;
+export const SDK_EVENTS = [
+  "SCREENSHOT_SUCCESS",
+  "SCREENSHOT_ERROR",
+  "FEEDBACK_SUBMIT_RESPONSE",
+] as const;
 
 type TFeedbackEvent = (typeof FEEDBACK_EVENT)[number];
 export type TSdkEvent = (typeof SDK_EVENTS)[number];

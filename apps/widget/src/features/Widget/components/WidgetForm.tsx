@@ -19,6 +19,7 @@ import { cn } from "@repo/utils/client";
 import { ImageAnnotator } from "@/components/ImageAnnotator.tsx";
 import { useScreenshot } from "@/hooks/useScreenShot.ts";
 import { submitFeedback } from "@/utils/widget.handler.utils.ts";
+import { useGetSubmitDetails } from "@/hooks/useGetSubmitDetails.ts";
 
 interface WidgetFormProps {
   isAnnotating: boolean;
@@ -45,7 +46,7 @@ export function WidgetForm({
     reset,
     formState: { errors },
   } = useFormContext<TWidgetFormPayload>();
-
+  const { getData } = useGetSubmitDetails();
   const { captureScreen, isCapturing } = useScreenshot();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -78,7 +79,9 @@ export function WidgetForm({
     setIsSubmitting(true);
 
     try {
-      await submitFeedback(data)?.then(() => {
+      const sdkData = await getData();
+
+      await submitFeedback({ ...data, ...sdkData })?.then(() => {
         setIsSubmitting(false);
         setIsSuccess(true);
 

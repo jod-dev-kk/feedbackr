@@ -1,6 +1,6 @@
 import { errorCapture } from "../tracking/errors";
 import { destroyListener, registerListener } from "./events";
-import { handleTakeScreenshot } from "./handlers";
+import { handleSubmitDetails, handleTakeScreenshot } from "./handlers";
 import { createWidgetIframe } from "./iframe";
 
 export function injectWidget(clientId: string) {
@@ -26,6 +26,8 @@ export function injectWidget(clientId: string) {
   registerListener("TAKE_SCREENSHOT", handleTakeScreenshot);
 
   errorCapture();
+
+  registerListener("FEEDBACK_SUBMIT_DETAILS", handleSubmitDetails);
 }
 
 export function destroyWidget() {
