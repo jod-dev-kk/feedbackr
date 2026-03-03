@@ -1,3 +1,5 @@
+import { getCache, setCache } from "../core/cache";
+
 export interface ValidateClientResponse {
   data: {
     valid: boolean;
@@ -11,6 +13,14 @@ export async function validateClientId(
 ): Promise<ValidateClientResponse> {
   if (!clientId) {
     throw new Error("clientId is required");
+  }
+
+  const cached = getCache(clientId);
+  if (cached) {
+    return {
+      data: { valid: true },
+      message: "validated",
+    };
   }
 
   try {
@@ -30,6 +40,8 @@ export async function validateClientId(
     if (!response.ok) {
       throw new Error(`Validation failed with status ${response.status}`);
     }
+
+    setCache(clientId);
 
     const data: ValidateClientResponse = await response.json();
     return data;
