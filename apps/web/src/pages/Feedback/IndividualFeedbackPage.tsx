@@ -64,8 +64,10 @@ export const IndividualFeedbackPage = () => {
                       0 ? (
                       <>
                         <img
+                          loading="lazy"
                           src={
                             getIndividualFeedbackService?.data?.data?.images[0]
+                              ?.url
                           }
                           // src="https://images.unsplash.com/photo-1761839256547-0a1cd11b6dfb?q=80&w=1169&auto=format&fit=crop"
                           alt="Feedback Screenshot"
