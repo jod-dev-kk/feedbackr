@@ -6,6 +6,11 @@ import { parse, StackFrame } from "stacktrace-parser";
 
 type ClientContext = {
   networkStatus: boolean;
+  userAgent: string;
+  url: string;
+  language: string;
+  screenWidth: number;
+  screenHeight: number;
 };
 
 type ErrorEntry = {
@@ -45,6 +50,11 @@ export const errorsBuffer: ErrorBuffer = {
 function getClientContext(): ClientContext {
   return {
     networkStatus: navigator.onLine,
+    userAgent: navigator.userAgent,
+    url: location.href,
+    language: navigator.language,
+    screenWidth: window.screen.width,
+    screenHeight: window.screen.height,
   };
 }
 
