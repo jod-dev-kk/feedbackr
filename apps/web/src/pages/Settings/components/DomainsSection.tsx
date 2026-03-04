@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import RegenerateClientIdModal from "./RegenerateClientIdModal.tsx";
 import { useState } from "react";
 import { useCopyToClipboard } from "@/hooks/useCopyClipboard.ts";
+import CreateDomainModal from "@/pages/Domains/components/CreateDomainModal.tsx";
 
 interface DomainsSectionProps {
   domains: IDomainType[];
@@ -121,20 +122,25 @@ export const DomainsSection = ({
 
               <DropdownMenuSeparator className="my-1" />
 
-              <DropdownMenuItem
-                className={cn(
-                  `focus:bg-neutral-200 text-neutral-700! hover:bg-muted! hover:text-neutral-700! font-medium group cursor-pointer py-2`,
-                )}
-                onClick={() => toast.info("Add domain modal would open here")}
-              >
-                <div
-                  data-section="domain"
-                  className="flex items-center justify-center gap-x-1 w-full text-neutral-400 font-normal"
-                >
-                  <Plus size={14} className="mb-px" />
-                  <p className="text-xs">Create a domain</p>
-                </div>
-              </DropdownMenuItem>
+              <CreateDomainModal
+                trigger={
+                  <DropdownMenuItem
+                    asChild
+                    onSelect={(e) => e.preventDefault()}
+                    className={cn(
+                      `focus:bg-neutral-200 text-neutral-700! hover:bg-muted! hover:text-neutral-700! font-medium group  cursor-pointer`,
+                    )}
+                  >
+                    <div
+                      data-section="domain"
+                      className="flex items-center justify-center gap-x-1  text-neutral-400 font-normal"
+                    >
+                      <Plus size={18} className="mb-px" />
+                      <p className="text-xs">Create a domain</p>
+                    </div>
+                  </DropdownMenuItem>
+                }
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
