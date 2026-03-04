@@ -19,6 +19,7 @@ import { Plus, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { ClientKeyDisplay } from "./ClientKeyDisplay.tsx";
 
 interface CreateDomainModalProps {
   trigger?: React.ReactNode;
@@ -26,6 +27,11 @@ interface CreateDomainModalProps {
 
 export default function CreateDomainModal({ trigger }: CreateDomainModalProps) {
   const [open, setOpen] = useState(false);
+  const [generatedData, setGeneratedData] = useState<{
+    clientId: string;
+    domainId: string;
+  } | null>(null);
+
   const navigate = useNavigate();
   const {
     register,
@@ -43,15 +49,9 @@ export default function CreateDomainModal({ trigger }: CreateDomainModalProps) {
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
-    if (!isOpen) {
-      setTimeout(() => reset(), 300);
-    }
-  };
 
-  const onSubmit = async (data: TDomainPayload) => {
-    await createDomainHandler({
-      data,
-      callback: (data) => {
+    if (!isOpen) {
+      if (generatedData) {
         queryClientGlobal?.removeQueries({
           queryKey: [CACHE_KEYS?.GET_DOMAINS],
         });
@@ -61,9 +61,25 @@ export default function CreateDomainModal({ trigger }: CreateDomainModalProps) {
         queryClientGlobal?.removeQueries({
           queryKey: [CACHE_KEYS?.GET_FEEDBACKS],
         });
-        navigate(`/dashboard/${data?.data?.domainId}`);
-        setOpen(false);
+
+        navigate(`/dashboard/${generatedData.domainId}`);
+      }
+
+      setTimeout(() => {
         reset();
+        setGeneratedData(null);
+      }, 300);
+    }
+  };
+
+  const onSubmit = async (data: TDomainPayload) => {
+    await createDomainHandler({
+      data,
+      callback: (res) => {
+        setGeneratedData({
+          clientId: res.data.clientId,
+          domainId: res.data.domainId,
+        });
       },
     });
   };
@@ -87,14 +103,11 @@ export default function CreateDomainModal({ trigger }: CreateDomainModalProps) {
         className="sm:max-w-[500px] p-0 border-0 bg-transparent shadow-none [&>button]:hidden overflow-visible"
       >
         <div className="p-2 bg-white/15 backdrop-blur-md border border-white/20 shadow-2xl rounded-3xl">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="bg-white rounded-2xl p-6 w-full h-full border border-gray-100/50"
-          >
+          <div className="bg-white rounded-2xl p-6 w-full h-full border border-gray-100/50">
             <div className="flex items-center justify-between mb-6">
               <DialogHeader>
                 <DialogTitle className="text-xl font-semibold tracking-tight">
-                  Add New Domain
+                  {generatedData ? "Domain Created" : "Add New Domain"}
                 </DialogTitle>
               </DialogHeader>
 
@@ -103,51 +116,58 @@ export default function CreateDomainModal({ trigger }: CreateDomainModalProps) {
               </DialogClose>
             </div>
 
-            <div className="space-y-5">
-              <p className="text-sm text-muted-foreground">
-                Add a new domain to start collecting feedback. A unique API key
-                will be generated automatically.
-              </p>
+            {generatedData ? (
+              <ClientKeyDisplay
+                newlyGeneratedKey={generatedData.clientId}
+                onClose={() => handleOpenChange(false)}
+              />
+            ) : (
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                <p className="text-sm text-muted-foreground">
+                  Add a new domain to start collecting feedback. A unique API
+                  key will be generated automatically.
+                </p>
 
-              <div className="space-y-4">
-                <div className="flex flex-col gap-y-1.5">
-                  <Label htmlFor="name">Name of the domain</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    {...register("name")}
-                    placeholder="e.g. Acme Corp"
-                  />
-                  {errors.name && (
-                    <p className="text-destructive text-xs pt-0.5">
-                      {errors.name.message}
-                    </p>
-                  )}
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-y-1.5">
+                    <Label htmlFor="name">Name of the domain</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      {...register("name")}
+                      placeholder="e.g. Acme Corp"
+                    />
+                    {errors.name && (
+                      <p className="text-destructive text-xs pt-0.5">
+                        {errors.name.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-y-1.5">
+                    <Label htmlFor="url">Domain URL</Label>
+                    <Input
+                      id="url"
+                      {...register("url")}
+                      placeholder="e.g. app.example.com"
+                    />
+                    {errors.url && (
+                      <p className="text-destructive text-xs pt-0.5">
+                        {errors.url.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-y-1.5">
-                  <Label htmlFor="url">Domain URL</Label>
-                  <Input
-                    id="url"
-                    {...register("url")}
-                    placeholder="e.g. app.example.com"
-                  />
-                  {errors.url && (
-                    <p className="text-destructive text-xs pt-0.5">
-                      {errors.url.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full h-11 rounded-lg bg-[#1A1A1A] hover:bg-black text-white font-medium mt-2"
-              >
-                Create Domain
-              </Button>
-            </div>
-          </form>
+                <Button
+                  type="submit"
+                  className="w-full h-11 rounded-lg bg-[#1A1A1A] hover:bg-black text-white font-medium mt-2"
+                >
+                  Create Domain
+                </Button>
+              </form>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
