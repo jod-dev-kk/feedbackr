@@ -124,33 +124,39 @@ export function AppSidebar() {
                   <p className="uppercase">Domains</p>
                 </div>
               </DropdownMenuLabel> */}
-              {domains.map((itemUnit, idx) => {
-                const isActive = params.domainId === itemUnit.id;
-                return (
-                  <div key={itemUnit.id}>
-                    <DropdownMenuItem
-                      asChild
-                      className={cn(
-                        `focus:bg-neutral-200 text-neutral-700! hover:bg-muted! hover:text-neutral-700! font-medium group`,
-                        isActive &&
-                          "bg-secondary! text-primary! [&_svg]:text-primary!",
-                      )}
-                      onClick={() => {
-                        navigate(`/dashboard/${itemUnit.id}`);
-                      }}
-                    >
-                      <div className="flex justify-between w-full cursor-pointer">
-                        <div className="flex items-center gap-x-1">
-                          <Globe className="size-[13px] mt-px" />
-                          <p className="text-xs">{itemUnit.name}</p>
+              {domains && domains?.length > 0 ? (
+                domains.map((itemUnit, idx) => {
+                  const isActive = params.domainId === itemUnit.id;
+                  return (
+                    <div key={itemUnit.id}>
+                      <DropdownMenuItem
+                        asChild
+                        className={cn(
+                          `focus:bg-neutral-200 text-neutral-700! hover:bg-muted! hover:text-neutral-700! font-medium group`,
+                          isActive &&
+                            "bg-secondary! text-primary! [&_svg]:text-primary!",
+                        )}
+                        onClick={() => {
+                          navigate(`/dashboard/${itemUnit.id}`);
+                        }}
+                      >
+                        <div className="flex justify-between w-full cursor-pointer">
+                          <div className="flex items-center gap-x-1">
+                            <Globe className="size-[13px] mt-px" />
+                            <p className="text-xs">{itemUnit.name}</p>
+                          </div>
+                          <p className="font-normal text-xs">{itemUnit.url}</p>
                         </div>
-                        <p className="font-normal text-xs">{itemUnit.url}</p>
-                      </div>
-                    </DropdownMenuItem>
-                    {idx !== domains.length - 1 && <DropdownMenuSeparator />}
-                  </div>
-                );
-              })}
+                      </DropdownMenuItem>
+                      {idx !== domains.length - 1 && <DropdownMenuSeparator />}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="flex items-center justify-center text-xs h-10 text-neutral-400">
+                  <span>No domains found</span>
+                </div>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator className="p-0" />
 

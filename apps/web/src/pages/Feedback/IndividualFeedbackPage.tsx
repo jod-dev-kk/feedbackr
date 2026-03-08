@@ -27,6 +27,12 @@ export const IndividualFeedbackPage = () => {
     feedbackId: feedbackId ?? "",
   });
 
+  const totalErrorsLength = getIndividualFeedbackService.data?.data
+    ?.debugContext.errors
+    ? Object.keys(getIndividualFeedbackService.data?.data?.debugContext.errors)
+        .length
+    : 0;
+
   return (
     <>
       <MainPagesLayout>
@@ -84,38 +90,56 @@ export const IndividualFeedbackPage = () => {
                     )}
                   </div>
                 </div>
-                {/* <Section
-                    context="2 Errors"
-                    section="Debug Data"
-                    className="flex md:hidden"
-                    variant="alert"
-                  /> */}
+
                 <div className="flex flex-col gap-y-6 w-full">
-                  {/* ENVIRONMENT */}
                   <div className="space-y-3 w-full">
-                    <Section
-                      section="Environment"
-                      // className="hidden md:flex"
-                      variant="info"
-                    />
+                    <Section section="Environment" variant="info" />
 
                     <div className="w-full">
                       <div className="rounded-xl border border-border bg-card p-4 space-y-3 w-full">
                         <EnvRow
-                          label="Browser"
+                          label="User Agent"
                           value={
                             getIndividualFeedbackService?.data?.data
-                              ?.clientContext.browser ?? "N/A"
+                              ?.clientContext?.userAgent ?? "N/A"
                           }
                         />
+
                         <EnvRow
-                          label="Operating System"
+                          label="Language"
                           value={
                             getIndividualFeedbackService?.data?.data
-                              ?.clientContext.os ?? "N/A"
+                              ?.clientContext?.language ?? "N/A"
                           }
                         />
-                        {/* <EnvRow label="Viewport" value="1920x1080" /> */}
+
+                        <EnvRow
+                          label="Screen Size"
+                          value={
+                            getIndividualFeedbackService?.data?.data
+                              ?.clientContext
+                              ? `${getIndividualFeedbackService.data.data.clientContext.screenWidth} x ${getIndividualFeedbackService.data.data.clientContext.screenHeight}`
+                              : "N/A"
+                          }
+                        />
+
+                        <EnvRow
+                          label="URL"
+                          value={
+                            getIndividualFeedbackService?.data?.data
+                              ?.clientContext?.url ?? "N/A"
+                          }
+                        />
+
+                        <EnvRow
+                          label="Network Status"
+                          value={
+                            getIndividualFeedbackService?.data?.data
+                              ?.clientContext?.networkStatus
+                              ? "Online"
+                              : "Offline"
+                          }
+                        />
                       </div>
                     </div>
                   </div>
@@ -147,7 +171,7 @@ export const IndividualFeedbackPage = () => {
 
             <div className="h-full flex flex-col space-y-3">
               <Section
-                context="2 Errors"
+                context={`${totalErrorsLength} Errors`}
                 section="Debug Data"
                 className=""
                 variant="alert"
@@ -174,11 +198,28 @@ export const IndividualFeedbackPage = () => {
   );
 };
 
-function EnvRow({ label, value }: { label: string; value: string }) {
+function EnvRow({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
   return (
-    <div className="flex items-center justify-between gap-4 text-sm w-full">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-foreground text-right">{value}</span>
+    <div
+      className={cn(
+        `flex items-center justify-between gap-4 text-xs w-full`,
+        className,
+      )}
+    >
+      <span data-label className="text-muted-foreground">
+        {label}
+      </span>
+      <span data-value className="font-medium text-foreground text-right">
+        {value}
+      </span>
     </div>
   );
 }

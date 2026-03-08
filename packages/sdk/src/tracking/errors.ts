@@ -21,8 +21,10 @@ type ErrorEntry = {
   pageTimeMs: number;
 };
 
+type ErrorBuckets = Record<string, ErrorEntry[]>;
+
 type DebugContext = {
-  errors: ErrorEntry[];
+  errors: ErrorBuckets;
 };
 
 export type ErrorBuffer = {
@@ -30,22 +32,18 @@ export type ErrorBuffer = {
   clientContext: ClientContext;
 };
 
-/* ================================
-   Session Buffer (Single Object)
-================================ */
+// Session Buffer
 
 const MAX_ERRORS_LIMIT = 60;
 
 export const errorsBuffer: ErrorBuffer = {
   debugContext: {
-    errors: [],
+    errors: {},
   },
   clientContext: getClientContext(),
 };
 
-/* ================================
-   Context Builders
-================================ */
+//Context Builders
 
 function getClientContext(): ClientContext {
   return {
@@ -87,10 +85,47 @@ function normalizeReason(reason: unknown): Error {
   }
 }
 
-/* ================================
-   Main Error Capture
-================================ */
+// Error Grouping Helpers
 
+function getBucketKey(type: string): string {
+  switch (type) {
+    case "TypeError":
+      return "typeErrors";
+    case "ReferenceError":
+      return "referenceErrors";
+    case "SyntaxError":
+      return "syntaxErrors";
+    case "RangeError":
+      return "rangeErrors";
+    case "URIError":
+      return "uriErrors";
+    case "AbortError":
+      return "abortErrors";
+    default:
+      return "generalErrors";
+  }
+}
+
+function getTotalErrors(): number {
+  return Object.values(errorsBuffer.debugContext.errors).reduce(
+    (total, arr) => total + arr.length,
+    0,
+  );
+}
+
+function pushError(entry: ErrorEntry) {
+  if (getTotalErrors() >= MAX_ERRORS_LIMIT) return;
+
+  const bucketKey = getBucketKey(entry.type);
+
+  if (!errorsBuffer.debugContext.errors[bucketKey]) {
+    errorsBuffer.debugContext.errors[bucketKey] = [];
+  }
+
+  errorsBuffer.debugContext.errors[bucketKey].push(entry);
+}
+
+// main error capture
 export function errorCapture() {
   window.addEventListener("error", (event) => {
     if (event.message === "Script error.") return;
@@ -98,10 +133,10 @@ export function errorCapture() {
     const errorObj =
       event.error instanceof Error ? event.error : new Error(event.message);
 
-    if (errorsBuffer.debugContext.errors.length < MAX_ERRORS_LIMIT) {
-      errorsBuffer.debugContext.errors.push(buildErrorEntry(errorObj, event));
-    }
-    console.log("errorsBuff", errorsBuffer);
+    const entry = buildErrorEntry(errorObj, event);
+    pushError(entry);
+
+    console.log("errorsBuffer", errorsBuffer);
   });
 
   window.addEventListener("unhandledrejection", (event) => {
@@ -109,9 +144,9 @@ export function errorCapture() {
 
     if (errorObj.name === "AbortError") return;
 
-    if (errorsBuffer.debugContext.errors.length < MAX_ERRORS_LIMIT) {
-      errorsBuffer.debugContext.errors.push(buildErrorEntry(errorObj, event));
-    }
-    console.log("errorsBuff", errorsBuffer);
+    const entry = buildErrorEntry(errorObj, event);
+    pushError(entry);
+
+    console.log("errorsBuffer", errorsBuffer);
   });
 }

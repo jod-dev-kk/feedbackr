@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-import { CACHE_KEYS } from "@repo/common/queryCacheKeys";
-import { API_URLS } from "@repo/common/apiUrls";
 import { handleGlobalGetRequestQuery } from "@/utils/httpFuntions.ts";
+import { API_URLS } from "@repo/common/apiUrls";
+import { CACHE_KEYS } from "@repo/common/queryCacheKeys";
+import { useQuery } from "@tanstack/react-query";
 import { IFeedbacksResponse } from "./useGetFeedbackService.types.ts";
 
 const useGetFeedbackService = ({ domainId }: { domainId: string }) => {
@@ -12,7 +12,7 @@ const useGetFeedbackService = ({ domainId }: { domainId: string }) => {
         url: API_URLS?.FEEDBACK,
         searchParams: { domainId: domainId },
       }),
-    refetchOnMount: "always",
+    // refetchOnMount: "always",    // this was fetching domains on each operations ( click on switch domains. )
     enabled: !!domainId,
   });
 

@@ -14,8 +14,6 @@ export const CreateDomainForm = () => {
     resolver: zodResolver(DomainSchema),
   });
 
-  console.log("errors", errors);
-
   const {
     handler: { createDomainHandler },
   } = useDomain();
