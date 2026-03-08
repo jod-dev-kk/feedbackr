@@ -1,4 +1,3 @@
-// hooks/useDomainRedirect.ts
 import { useAuth } from "@/features/auth/hooks.ts";
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router";
@@ -37,7 +36,7 @@ export const useDomainRedirect = ({
       return;
     }
 
-    // Has domains → dashboard
+    // // Has domains → dashboard
     if (domains && domains?.[0]?.id) {
       toast.info(`Redirecting to ${domains[0].name}`);
       navigate(`/dashboard/${domains[0].id}`, { replace: true });

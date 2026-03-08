@@ -1,20 +1,19 @@
-import MainPagesLayout from "@/components/MainPagesLayout.tsx";
-import { MetricCard } from "./components/MetricCard.tsx";
-import { CheckCircle2, CircleDashed, Clock, Inbox } from "lucide-react";
-import { MostFeedbackPagesCard } from "./components/MostFeedbackPagesCard.tsx";
-import { BrowserStats } from "./components/BrowserStatsCard.tsx";
-import { RecentFeedbacks } from "./components/RecentFeedbacks.tsx";
-import useGetFeedbacks from "@/hooks/useGetFeedbacks.ts";
-import { useNavigate, useParams } from "react-router";
-import useGetDomainService from "@/services/getDomainService/useGetDomainService.ts";
-import { useEffect } from "react";
-import PageLoader from "@/components/Loaders/PageLoader.tsx";
+import { SectionLayout } from "@/components/Layouts/SectionLayout.tsx";
 import {
   TopbarContainer,
   TopbarGroup,
 } from "@/components/Layouts/TopbarLayout.tsx";
-import { Button } from "@repo/ui";
-import { SectionLayout } from "@/components/Layouts/SectionLayout.tsx";
+import PageLoader from "@/components/Loaders/PageLoader.tsx";
+import MainPagesLayout from "@/components/MainPagesLayout.tsx";
+import useGetFeedbacks from "@/hooks/useGetFeedbacks.ts";
+import useGetDomainService from "@/services/getDomainService/useGetDomainService.ts";
+import { CheckCircle2, CircleDashed, Clock, Inbox } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router";
+import { BrowserStats } from "./components/BrowserStatsCard.tsx";
+import { MetricCard } from "./components/MetricCard.tsx";
+import { MostFeedbackPagesCard } from "./components/MostFeedbackPagesCard.tsx";
+import { RecentFeedbacks } from "./components/RecentFeedbacks.tsx";
 
 export default function Dashboard() {
   const { domainId } = useParams();
@@ -38,10 +37,17 @@ export default function Dashboard() {
         navigate(`/dashboard/${newDomainId}`);
       }
     }
-  }, [domainId, getDomainService?.isLoading]);
+  }, [
+    domainId,
+    getDomainService?.isLoading,
+    domainId,
+    getDomainService?.isLoading,
+    getDomainService?.data?.data,
+    navigate,
+  ]);
 
   if (getDomainService?.isLoading || getFeedbackService?.isLoading)
-    return <PageLoader />;
+    return <PageLoader title="" />;
 
   return (
     <MainPagesLayout>
