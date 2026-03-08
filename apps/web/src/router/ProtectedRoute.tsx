@@ -25,6 +25,8 @@ export const ProtectedRoute = () => {
   }, [domains, navigate]);
 
   useEffect(() => {
+    console.log("protected mounted");
+
     handleDomainRedirect();
   }, [handleDomainRedirect]);
   if (userSession.isPending) {
@@ -38,5 +40,9 @@ export const ProtectedRoute = () => {
     return <Navigate to={"/login"} />;
   }
 
+  // instead of creating seperate function to add domain global routing checks. i added this inside protected route
+  if (domains && domains?.length <= 0) {
+    return <Navigate to={"/onboarding/create-domain"} />;
+  }
   return <DashboardLayout />;
 };

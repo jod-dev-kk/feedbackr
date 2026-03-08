@@ -1,9 +1,9 @@
 // hooks/useDomainRedirect.ts
 import { useAuth } from "@/features/auth/hooks.ts";
-import useGetDomainExistService from "@/services/getDomainExistService/useGetDomainExistService.ts";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { useCallback, useEffect } from "react";
+import { useDomain } from "./useDomain.ts";
 
 interface UseDomainRedirectProps {
   onNoDomains?: () => void; // Custom handler for no domains
@@ -15,15 +15,14 @@ export const useDomainRedirect = ({
   const { userSession } = useAuth();
   const navigate = useNavigate();
   const {
-    data: { domains, hasDomains },
-    services: { getDomainExistService },
-  } = useGetDomainExistService();
-
+    data: { domains },
+    services: { getDomainService },
+  } = useDomain();
   const handleRedirect = useCallback(() => {
     // 401 → login
-    if (getDomainExistService.error?.response?.status === 401) {
+    if (getDomainService.error?.response?.status === 401) {
       toast.error(
-        getDomainExistService.error.response.data?.message || "Session expired",
+        getDomainService.error.response.data?.message || "Session expired",
       );
       navigate("/login", { replace: true });
       return;
@@ -31,15 +30,15 @@ export const useDomainRedirect = ({
 
     // Still processing
     if (
-      getDomainExistService.isLoading ||
-      getDomainExistService.isPending ||
-      getDomainExistService.error
+      getDomainService.isLoading ||
+      getDomainService.isPending ||
+      getDomainService.error
     ) {
       return;
     }
 
     // Has domains → dashboard
-    if (hasDomains && domains?.[0]?.id) {
+    if (domains && domains?.[0]?.id) {
       toast.info(`Redirecting to ${domains[0].name}`);
       navigate(`/dashboard/${domains[0].id}`, { replace: true });
       return;
@@ -52,10 +51,9 @@ export const useDomainRedirect = ({
       navigate("/onboarding/create-domain", { replace: true });
     }
   }, [
-    getDomainExistService.error,
-    getDomainExistService.isLoading,
-    getDomainExistService.isPending,
-    hasDomains,
+    getDomainService.error,
+    getDomainService.isLoading,
+    getDomainService.isPending,
     domains,
     navigate,
     onNoDomains,
@@ -66,9 +64,8 @@ export const useDomainRedirect = ({
   }, [handleRedirect]);
 
   return {
-    isRedirecting:
-      getDomainExistService.isLoading || getDomainExistService.isPending,
-    hasError: !!getDomainExistService.error,
+    isRedirecting: getDomainService.isLoading || getDomainService.isPending,
+    hasError: !!getDomainService.error,
     domains,
   };
 };

@@ -1,15 +1,20 @@
 import { SocialAuthSection } from "@/features/auth/components/SocialAuthSection.tsx";
 import { useAuth } from "@/features/auth/hooks.ts";
 import { FeedbackrLogo } from "@repo/ui/icons";
-import { Navigate, useLocation } from "react-router";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router";
 
 export const LoginPage = () => {
   const { userSession } = useAuth();
   const location = useLocation();
 
-  if (location.pathname === "/login" && userSession.data?.session) {
-    return <Navigate to={"/dashboard/home"} />;
-  }
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.pathname === "/login" && userSession.data?.session) {
+      navigate("/dashboard/home");
+    }
+  }, [navigate, userSession?.data?.session, location.pathname]);
   return (
     <div className="h-screen w-full flex items-center justify-center">
       <div

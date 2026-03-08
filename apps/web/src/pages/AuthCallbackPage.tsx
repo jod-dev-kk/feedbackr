@@ -6,9 +6,9 @@ import { Navigate } from "react-router";
 
 export const AuthCallbackPage = () => {
   const { userSession } = useAuth();
-  useDomainRedirect();
+  const { isRedirecting } = useDomainRedirect();
 
-  if (userSession.isPending) {
+  if (userSession.isPending || isRedirecting) {
     return <PageLoader />;
   }
 
@@ -16,11 +16,10 @@ export const AuthCallbackPage = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // 3. Domain redirect spinner (hook handles logic)
   return (
     <div className="h-screen flex flex-col items-center justify-center gap-3 px-3 lg:px-0">
       <Spinner variant="primary" size="xs" />
-      <p>Setting up your workspace...</p>
+      <p>Setting up your workspace ...</p>
     </div>
   );
 };
