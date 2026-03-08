@@ -1,6 +1,12 @@
 interface IClientContext {
   os: string;
   browser: string;
+  userAgent: string;
+  language: string;
+  screenWidth: string;
+  screenHeight: string;
+  url: string;
+  networkStatus: string;
 }
 type ErrorType =
   | "TypeError"
@@ -12,28 +18,27 @@ type ErrorType =
   | "UriError";
 
 type StackFrame = {
-  type: ErrorType;
-  message: string;
-  stackTrace: {
-    file: string | null;
-    methodName: any;
-    arguments: string[];
-    lineNumber: number | null;
-    column: number | null;
-  }[];
+  file: string | null;
+  methodName: any;
+  arguments: string[];
+  lineNumber: number | null;
+  column: number | null;
 };
 interface IDebugContext {
-  errors: [
-    {
-      type: ErrorType;
-      message: string;
-      stackTrace: StackFrame[];
-      occuredAt: string;
-      pageTimeMs: number;
+  errors: Record<
+    string,
+    [
+      {
+        type: ErrorType;
+        message: string;
+        stackTrace: StackFrame[];
+        occuredAt: string;
+        pageTimeMs: number;
 
-      meta: { networkStatus: boolean };
-    },
-  ];
+        meta: { networkStatus: boolean };
+      },
+    ]
+  >;
   network: [
     {
       url: string;

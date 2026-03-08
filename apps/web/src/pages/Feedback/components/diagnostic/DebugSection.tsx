@@ -13,35 +13,50 @@ import {
 const TYPE_MAPPER: Record<string, { name: string; description: string }> = {
   TypeError: {
     name: "Type Errors",
-    description: "These are caused by invalid value types passed",
+    description:
+      "Occurs when a value is not of the expected type, such as calling a non-function, accessing properties on undefined/null, or passing invalid argument types.",
   },
+
   ReferenceError: {
     name: "Reference Errors",
-    description: "These are reference errors ",
+    description:
+      "Triggered when code attempts to access a variable or identifier that has not been declared or is out of scope.",
   },
-  Error: {
-    name: "Normal Errors",
-    description: "These are user defined errors",
+
+  GeneralErrors: {
+    name: "General Errors",
+    description:
+      "Represents custom or generic errors thrown intentionally in application logic using the standard Error constructor.",
   },
+
   promise: {
     name: "Promise Errors",
-    description: "There are promise failed errors",
+    description:
+      "Occurs when a Promise is rejected or an asynchronous operation fails without proper error handling.",
   },
+
   AbortError: {
     name: "Abort Controller Errors",
-    description: "There are abort controller errors",
+    description:
+      "Thrown when an asynchronous operation such as a fetch request is intentionally cancelled using an AbortController.",
   },
+
   RangeError: {
-    name: "Invalid Range Errors",
-    description: "There are invalid range errors",
+    name: "Range Errors",
+    description:
+      "Occurs when a value is outside the allowed range, such as passing invalid lengths to arrays or using numbers outside permitted limits.",
   },
+
   URIError: {
-    name: "Invalid URI Errors",
-    description: "There are invalid range errors",
+    name: "URI Errors",
+    description:
+      "Thrown when invalid URI encoding or decoding is attempted, typically from malformed input to encodeURI or decodeURI functions.",
   },
+
   SyntaxError: {
     name: "Syntax Errors",
-    description: "There are invalid syntax errors",
+    description:
+      "Occurs when JavaScript encounters invalid code syntax during parsing, such as malformed JSON or incorrect language structure.",
   },
 };
 
@@ -128,36 +143,48 @@ export const DebugSection = ({
             </TabsList>
             <div className="border border-border rounded-lg mt-2 mb-6">
               <TabsContent value="console">
-                {debugContext && debugContext?.errors?.length > 0 ? (
-                  debugContext?.errors?.map((error, idx) => {
-                    console.log("error", error);
-                    return (
-                      <DebugContent key={idx} className="">
-                        <DebugLeftSide>
-                          <DebugTitle>
-                            {TYPE_MAPPER[error.type]?.name ?? "Unknown Error"}
-                          </DebugTitle>
-                          <DebugDescription>
-                            {TYPE_MAPPER[error.type]?.description ??
-                              "An error occurred but its type is not mapped."}
-                          </DebugDescription>
-                        </DebugLeftSide>
-                        <DebugRightSide className="min-w-0">
-                          <CodeSnippet variant="dark" theme={"slack-dark"}>
-                            {error.message}
-                          </CodeSnippet>
-                          <CodeSnippet variant="dark" theme={"slack-dark"}>
-                            {error?.stackTrace &&
-                              error?.stackTrace.length > 0 &&
-                              error.stackTrace.map((trace) => {
-                                console.log("trace", trace);
-                                return JSON.stringify(trace);
-                              })}
-                          </CodeSnippet>
-                        </DebugRightSide>
-                      </DebugContent>
-                    );
-                  })
+                {debugContext && Object.keys(debugContext.errors).length > 0 ? (
+                  Object.entries(debugContext.errors).map(
+                    ([bucket, errors]) => {
+                      const firstError = errors[0];
+
+                      return (
+                        <DebugContent key={bucket}>
+                          <DebugLeftSide>
+                            <DebugTitle>
+                              {TYPE_MAPPER[firstError?.type]?.name ??
+                                "Unknown Error"}{" "}
+                              ({errors.length})
+                            </DebugTitle>
+
+                            <DebugDescription>
+                              {TYPE_MAPPER[firstError?.type]?.description ??
+                                "An error occurred but its type is not mapped."}
+                            </DebugDescription>
+                          </DebugLeftSide>
+
+                          <DebugRightSide className="min-w-0">
+                            {errors.map((error, idx) => (
+                              <div key={idx} className="mb-4">
+                                <CodeSnippet variant="dark" theme="slack-dark">
+                                  {error.message}
+                                </CodeSnippet>
+
+                                <CodeSnippet variant="dark" theme="slack-dark">
+                                  {error.stackTrace
+                                    ?.map(
+                                      (trace) =>
+                                        `${trace.file}:${trace.lineNumber}:${trace.column}`,
+                                    )
+                                    .join("\n")}
+                                </CodeSnippet>
+                              </div>
+                            ))}
+                          </DebugRightSide>
+                        </DebugContent>
+                      );
+                    },
+                  )
                 ) : (
                   <DebugContent>
                     <DebugLeftSide>
@@ -166,6 +193,7 @@ export const DebugSection = ({
                         We could not capture any client side errors.
                       </DebugDescription>
                     </DebugLeftSide>
+
                     <DebugRightSide className="w-full min-w-0">
                       <CodeSnippet variant="dark" theme="slack-dark">
                         {"// No errors recorded"}
@@ -201,15 +229,26 @@ export const DebugSection = ({
                 ) : (
                   <DebugContent>
                     <DebugLeftSide>
-                      <DebugTitle>No network calls</DebugTitle>
+                      <DebugTitle>Network Monitoring — Coming Soon</DebugTitle>
                       <DebugDescription>
-                        We could not capture any network activity for this
-                        session.
+                        We're working on capturing network activity for this
+                        session. Soon you'll be able to inspect API requests,
+                        responses, and timings here.
                       </DebugDescription>
                     </DebugLeftSide>
+
                     <DebugRightSide className="w-full min-w-0">
                       <CodeSnippet variant="dark" theme="slack-dark">
-                        {"// No requests recorded"}
+                        {`// Network activity panel
+// Feature in v2
+
+// Soon you'll see:
+// • API requests
+// • Response status codes
+// • Request/response payloads
+// • Timing and performance metrics
+
+// Stay tuned 🚀`}
                       </CodeSnippet>
                     </DebugRightSide>
                   </DebugContent>
