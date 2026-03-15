@@ -23,4 +23,7 @@ export const auth = betterAuth({
   },
 
   trustedOrigins: [env.FRONTEND_URL],
+  account: {
+    skipStateCookieCheck: true, // for vercel.app only ( state mismatched error )
+  },
 });
