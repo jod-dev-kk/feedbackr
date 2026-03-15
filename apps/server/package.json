@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "prisma generate",
     "dev": "tsup --watch --onSuccess \"nodemon dist/index.js\"",
     "prisma:format": "npx prisma format --schema=./prisma/schemas/schema.prisma",
     "prisma:generate": "npx prisma generate --config=`./apps/server/prisma.config.ts`",
