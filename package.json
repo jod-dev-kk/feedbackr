@@ -2,7 +2,10 @@
   "name": "turbo-vite-express-prisma-starter",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
+    "build:web": "npx turbo run build --filter=web",
+    "start:web": "cd apps/web && npm run preview",
+    "build:widget": "npx turbo run build --filter=widget",
+    "start:widget": "cd apps/widget && npm run preview",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
